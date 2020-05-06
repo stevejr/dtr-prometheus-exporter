@@ -35,7 +35,7 @@ func readAndValidateConfig(result *config.Config) {
 
 	flag.StringVar(&result.DTR.Username, "dtr-username", "", "Username of DTR user")
 	flag.StringVar(&result.DTR.Password, "dtr-password", "", "Password of DTR user")
-	flag.BoolVar(&result.DTR.EnableTLS, "enable-tls", false, "Enable to use tls connection")
+	flag.BoolVar(&result.DTR.EnableTLS, "enable-tls", true, "Enable to use tls connection")
 	flag.StringVar(&result.DTR.CAFile, "dtr-ca", "", "Path to CA certificate file for tls connection")
 	flag.StringVar(&result.DTR.CertificateFile, "dtr-cert", "", "Path to certificate file for tls connection")
 	flag.StringVar(&result.DTR.KeyFile, "dtr-key", "", "Path to key file for tls connection")
