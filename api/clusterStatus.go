@@ -2,8 +2,11 @@ package api
 
 import (
   "time"
-  // "encoding/json"
+	"encoding/json"
 )
+
+// CSAPIEndpoint - the DTR API endpoint for Cluster Status
+const CSAPIEndpoint = "api/v0/meta/cluster_status" 
 
 // ClusterStatus - DTR Cluster Status API response
 type ClusterStatus struct {
@@ -164,4 +167,35 @@ type RethinkSystemTables struct {
 	Stats                 []Stats                   `json:"stats"`
 	TableConfig           []TableConfig             `json:"table_config"`
 	TableStatus           []TableStatus             `json:"table_status"`
+}
+
+// CSReplicaHealth - main struct to hold the replica stats
+type CSReplicaHealth struct {
+  ID                  string
+  HealthyCount        int
+}
+
+// GetCSReplicaHealthStats - Get the ReplicaHealth stats
+func GetCSReplicaHealthStats(jsonData []byte) (*[]CSReplicaHealth, error) {
+  var result []CSReplicaHealth
+  var healthCount int
+
+	var dtrClusterStatus ClusterStatus
+		
+	err := json.Unmarshal(jsonData, &dtrClusterStatus)
+  if err != nil {
+    return nil, err
+  }
+  
+  for replica, health := range dtrClusterStatus.ReplicaHealth {
+    if health == "OK" {
+      healthCount = 1
+    }
+    result = append(result, CSReplicaHealth{
+      ID: replica,
+      HealthyCount: healthCount,
+    }) 
+  }
+
+  return &result, nil
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type replicaHealthMetrics struct {
+type csReplicaHealthMetrics struct {
   health           *prometheus.Desc
 }
 
@@ -19,13 +19,13 @@ type Collector struct {
 
   up *prometheus.Desc
   
-  replicaHealthyCounts      replicaHealthMetrics
-  replicaUnHealthyCounts    replicaHealthMetrics
+  csReplicaHealthyCounts      csReplicaHealthMetrics
+  csReplicaUnHealthyCounts    csReplicaHealthMetrics
 }
 
-func newReplicaHealthMetrics(itemName string) replicaHealthMetrics {
+func newCSReplicaHealthMetrics(itemName string) csReplicaHealthMetrics {
 
-	return replicaHealthMetrics{
+	return csReplicaHealthMetrics{
 		health: prometheus.NewDesc(fmt.Sprintf("dtr_replica_%s_count", strings.ToLower(itemName)),
 			fmt.Sprintf("%s count of replicas", itemName), []string{"name"}, nil),
 	}
@@ -39,12 +39,12 @@ func New(client *dtr.DTRClient, log *logrus.Logger) *Collector {
 
 		up: prometheus.NewDesc("dtr_up", "Whether the DTR scrape was successful", nil, nil),
 
-    replicaHealthyCounts: newReplicaHealthMetrics("Healthy"),
-    replicaUnHealthyCounts: newReplicaHealthMetrics("UnHealthy"),
+    csReplicaHealthyCounts: newCSReplicaHealthMetrics("Healthy"),
+    csReplicaUnHealthyCounts: newCSReplicaHealthMetrics("UnHealthy"),
 	}
 }
 
-func describeReplicaHealthMetrics(ch chan<- *prometheus.Desc, metrics *replicaHealthMetrics) {
+func describeReplicaHealthMetrics(ch chan<- *prometheus.Desc, metrics *csReplicaHealthMetrics) {
 	ch <- metrics.health
 }
 
@@ -52,8 +52,8 @@ func describeReplicaHealthMetrics(ch chan<- *prometheus.Desc, metrics *replicaHe
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.up
 
-	describeReplicaHealthMetrics(ch, &c.replicaHealthyCounts)
-	describeReplicaHealthMetrics(ch, &c.replicaUnHealthyCounts)
+	describeReplicaHealthMetrics(ch, &c.csReplicaHealthyCounts)
+	describeReplicaHealthMetrics(ch, &c.csReplicaUnHealthyCounts)
 }
 
 // Collect - called to get the metric values
@@ -67,15 +67,15 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 
-		collectHealthMetrics(c, ch, stats)
+		collectCSReplicaHealthMetrics(c, ch, stats)
 
 		c.log.Info("Scrape completed")
 	}
 }
 
-func collectHealthMetrics(c *Collector, ch chan<- prometheus.Metric, stats *dtr.Stats) {
+func collectCSReplicaHealthMetrics(c *Collector, ch chan<- prometheus.Metric, stats *dtr.Stats) {
   var health, unhealthy int
-  for _, replica := range *stats.Replicas {
+  for _, replica := range *stats.CSReplicasHealth {
     if replica.HealthyCount == 1 {
       health++
     } else {
@@ -83,11 +83,11 @@ func collectHealthMetrics(c *Collector, ch chan<- prometheus.Metric, stats *dtr.
     }
   }
 
-  collectSizes(ch, &c.replicaHealthyCounts, health, "Healthy")
-  collectSizes(ch, &c.replicaUnHealthyCounts, unhealthy, "UnHealthy")
+  collectSizes(ch, &c.csReplicaHealthyCounts, health, "Healthy")
+  collectSizes(ch, &c.csReplicaUnHealthyCounts, unhealthy, "UnHealthy")
 }
 
-func collectSizes(ch chan<- prometheus.Metric, metrics *replicaHealthMetrics, health int, labelValues ...string) {
+func collectSizes(ch chan<- prometheus.Metric, metrics *csReplicaHealthMetrics, health int, labelValues ...string) {
 	ch <- prometheus.MustNewConstMetric(metrics.health, prometheus.GaugeValue, float64(health), labelValues...)
 }
 

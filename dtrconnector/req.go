@@ -5,8 +5,18 @@ import (
   "net/http"
   "github.com/stevejr/dtr-prometheus-exporter/config"
   "io/ioutil"
-  "crypto/tls"
+	"crypto/tls"
+	"strings"
 )
+
+func setAPIEndpoint (ae string, cs *string) {
+
+	if ae[0:0] == "/" { 
+		ae = strings.Replace(ae, "/", "", 1)
+		fmt.Printf("apiEndpoint: %s\n", ae)
+	}
+	*cs = fmt.Sprintf("%s/%s", *cs, ae)
+}
 
 // MakeRequest prepares a new http client request
 func MakeRequest (cfg config.Config, tlsConfig *tls.Config) (*http.Response, error) {
@@ -39,7 +49,7 @@ func MakeRequest (cfg config.Config, tlsConfig *tls.Config) (*http.Response, err
 }
 
 // MakeClientRequest prepares a new http client request
-func MakeClientRequest (cs string, tlsConfig *tls.Config, username string, password string) ([]byte, error) {
+func MakeClientRequest (cs string, tlsConfig *tls.Config, username string, password string, apiEndpoint string) ([]byte, error) {
 
 	client := &http.Client{
     Transport: &http.Transport{
@@ -51,6 +61,8 @@ func MakeClientRequest (cs string, tlsConfig *tls.Config, username string, passw
     },
 	}
 	
+	setAPIEndpoint(apiEndpoint, &cs)
+
 	req, err := http.NewRequest("GET", cs, nil)
 	if err != nil {
 	  return nil, fmt.Errorf("Could not create new http request")
