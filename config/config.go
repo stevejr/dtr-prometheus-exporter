@@ -51,6 +51,10 @@ type Config struct {
 		ConnectionPoolSize int `mapstructure:"connection_pool_size"`
 	} `mapstructure:"dtr"`
 
+	API struct {
+		JobCount uint `mapstructure:"api_jobcount"`
+	}
+
 	// Log defines exporter's logging
 	Log struct {
 		// JSONOutput enables output in json-format, use for structured logging

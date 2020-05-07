@@ -39,6 +39,9 @@ func readAndValidateConfig(result *config.Config) {
 	flag.StringVar(&result.DTR.CAFile, "dtr-ca", "", "Path to CA certificate file for tls connection")
 	flag.StringVar(&result.DTR.CertificateFile, "dtr-cert", "", "Path to certificate file for tls connection")
 	flag.StringVar(&result.DTR.KeyFile, "dtr-key", "", "Path to key file for tls connection")
+	// API related flags
+	flag.UintVar(&result.API.JobCount, "job-count", 10, "Number of Job entries to retrieve from Jobs API")
+	
 
 	flag.Parse()
 
@@ -99,53 +102,6 @@ func main() {
 			log.Fatal("failed to read tls credentials")
 		}
 	}
-
-  // resp, err := dtrconnector.MakeRequest(cfg, tlsConfig)
-  // if err != nil {
-  //   log.Println(err)
-  //   return
-  // }
-
-	// jsonData, err := ioutil.ReadAll(resp.Body)
-
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-	// defer resp.Body.Close()
-
-	// var dtrClusterStatus api.ClusterStatus
-	
-	// err = json.Unmarshal(jsonData, &dtrClusterStatus)
-  //   if err != nil {
-	// 	log.Println(err)
-	// }
-
-  // fmt.Println("Print out RethinkSystemTables")
-  // fmt.Printf("%+v\n", dtrClusterStatus.RethinkSystemTables)
-  
-	// fmt.Println("Print out ReplicaHealth")
-	// fmt.Printf("%+v\n", dtrClusterStatus.ReplicaHealth)
-
-  // fmt.Println("Print out ReplicaTimestamp")
-	// fmt.Printf("%+v\n", dtrClusterStatus.ReplicaTimestamp)
-
-  // fmt.Println("Print out ReplicaReadonly")
-	// fmt.Printf("%+v\n", dtrClusterStatus.ReplicaReadonly)
-
-	// dtrReplicaCounter := make( map[string]int ) 
-  // dtrReplicaHealthCounter := make( map[string]int )
-   
-	// for key, element := range dtrClusterStatus.ReplicaHealth {
-	// 	fmt.Println("Key:", key, "=>", "Element:", element)
-	// 	dtrReplicaCounter[key]++
-	// 	dtrReplicaHealthCounter[element]++	
-	// }
-	
-	// fmt.Println("Number of keys: ", len(dtrClusterStatus.ReplicaHealth))	
-	// fmt.Println("Number of replicas: ", len(dtrReplicaCounter))
-	// fmt.Println("Number of healthy replicas: ", dtrReplicaHealthCounter["OK"])
-	// fmt.Println("Number of unhealthy replicas: ", dtrReplicaHealthCounter["NOTOK"])
 
   // fmt.Println("Creating new DTR Client")
   client := dtr.New(cfg, tlsConfig)

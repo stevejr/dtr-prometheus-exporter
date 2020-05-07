@@ -179,7 +179,6 @@ type CSReplicaHealth struct {
 func GetCSReplicaHealthStats(jsonData []byte) (*[]CSReplicaHealth, error) {
   var result []CSReplicaHealth
   var healthCount int
-
 	var dtrClusterStatus ClusterStatus
 		
 	err := json.Unmarshal(jsonData, &dtrClusterStatus)

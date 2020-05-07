@@ -1,4 +1,5 @@
 # dtr-prometheus-exporter
+
 Docker Trusted Registry (DTR) metrics Prometheus exporter. Issues HTTPs calls to the DTR REST APIs and scrapes the data.
 
 ## Installation
@@ -53,16 +54,21 @@ The exporter can be configured with commandline arguments, environment variables
 |--port|PORT|9580|Port to expose scrape endpoint on|
 |--timeout|TIMEOUT|30s|Timeout when scraping the Service Bus|
 |--verbose|VERBOSE|false|Enable verbose logging|
+|--job-count|JOB_COUNT|10|Number of results to retrieve from the Jobs API|
 
 ## Exported metrics
 
 ```bash
-# HELP dtr_replica_healthy_count Healthy count of replicas
-# TYPE dtr_replica_healthy_count gauge
-dtr_replica_healthy_count{name="Healthy"} 3
-# HELP dtr_replica_unhealthy_count UnHealthy count of replicas
-# TYPE dtr_replica_unhealthy_count gauge
-dtr_replica_unhealthy_count{name="UnHealthy"} 0
+# HELP dtr_job_total DTR job total
+# TYPE dtr_job_total gauge
+dtr_job_total{action="poll_mirror",status="done"} 50
+dtr_job_total{action="tag_prune",status="done"} 50
+# HELP dtr_replica_healthy_total Healthy count of replicas
+# TYPE dtr_replica_healthy_total gauge
+dtr_replica_healthy_total{name="healthy"} 3
+# HELP dtr_replica_unhealthy_total UnHealthy count of replicas
+# TYPE dtr_replica_unhealthy_total gauge
+dtr_replica_unhealthy_total{name="unhealthy"} 0
 # HELP dtr_up Whether the DTR scrape was successful
 # TYPE dtr_up gauge
 dtr_up 1
