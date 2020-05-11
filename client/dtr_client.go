@@ -19,9 +19,17 @@ type DTRClient struct {
 	jobCount						uint
 }
 
+type clusterStatusStats struct {
+	replicaStats				*[]api.CSReplicaHealth	
+	tableStats 					*[]api.TableStatus 
+	stats 							*[]api.Stats
+}
+
 // Stats - main struct to hold captured stats
 type Stats struct {
 	CSReplicasHealth  *[]api.CSReplicaHealth
+	CSStats 					*[]api.Stats
+	CSTableStatus			*[]api.TableStatus 
 	JobCounts					*[]api.JobCounts
 }
 
@@ -39,7 +47,7 @@ func New (cfg config.Config, tlsConfig *tls.Config) (*DTRClient) {
 
 // GetDTRStats - Retrieve the DTR API related stats
 func (c *DTRClient) GetDTRStats() (*Stats, error) {
-  replicas, err := getClusterStatusStats(c)	
+  clusterStatusStats, err := getClusterStatusStats(c)	
 	if err != nil {
     return nil, err
 	}
@@ -50,12 +58,14 @@ func (c *DTRClient) GetDTRStats() (*Stats, error) {
   }	
 
 	return &Stats{
-		CSReplicasHealth: replicas,
+		CSReplicasHealth: clusterStatusStats.replicaStats,
+		CSStats: clusterStatusStats.stats, 
+		CSTableStatus: clusterStatusStats.tableStats,
 		JobCounts: jobCounts,	
 	}, nil
 }
 
-func getClusterStatusStats(c *DTRClient) (*[]api.CSReplicaHealth, error) {
+func getClusterStatusStats(c *DTRClient) (*clusterStatusStats, error) {
 	apiEndpoint := api.CSAPIEndpoint
 	
   jsonData, err := dtrconnector.MakeClientRequest(c.connectionString, c.tlsConfig, c.username, c.password, apiEndpoint)
@@ -66,9 +76,22 @@ func getClusterStatusStats(c *DTRClient) (*[]api.CSReplicaHealth, error) {
 	replicas, err := api.GetCSReplicaHealthStats(jsonData)
   if err != nil {
     return nil, err
-  }
+	}
 	
-	return replicas, nil
+	tablestatus, err := api.GetCSTableStatus(jsonData)
+  if err != nil {
+    return nil, err
+	}
+
+	stats, err := api.GetCSStats(jsonData)
+  if err != nil {
+    return nil, err
+	}
+
+	return &clusterStatusStats{
+		replicaStats: replicas, 
+		tableStats: tablestatus,
+		stats: stats}, nil
 }
 
 func getJobStats(c *DTRClient) (*[]api.JobCounts, error) {

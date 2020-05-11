@@ -102,6 +102,7 @@ type StorageEngine struct {
 }
 // Stats - Stats by table
 type Stats struct {
+	Db 										string										`json:"db"`
   ID                    []string                  `json:"id"`
   QueryEngine           QueryEngine               `json:"query_engine,omitempty"`
   Server                string                    `json:"server,omitempty"`
@@ -197,4 +198,36 @@ func GetCSReplicaHealthStats(jsonData []byte) (*[]CSReplicaHealth, error) {
   }
 
   return &result, nil
+}
+
+// GetCSTableStatus - Get the TableStatus array
+func GetCSTableStatus(jsonData []byte) (*[]TableStatus, error) {
+
+	var dtrClusterStatus ClusterStatus
+	 
+	err := json.Unmarshal(jsonData, &dtrClusterStatus)
+  if err != nil {
+    return nil, err
+  }
+
+	return &dtrClusterStatus.RethinkSystemTables.TableStatus, nil
+}
+
+// GetCSStats - Get the Stats array
+func GetCSStats(jsonData []byte) (*[]Stats, error) {
+
+	var dtrClusterStatus ClusterStatus
+	var csStats []Stats
+
+	err := json.Unmarshal(jsonData, &dtrClusterStatus)
+  if err != nil {
+    return nil, err
+  }
+
+	for _, stat := range dtrClusterStatus.RethinkSystemTables.Stats {
+		if stat.Server != "" {
+			csStats = append(csStats, stat)
+		}
+	}
+	return &csStats, nil
 }

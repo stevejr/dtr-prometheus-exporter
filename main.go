@@ -18,7 +18,6 @@ import (
 	"github.com/stevejr/dtr-prometheus-exporter/collector"
   "github.com/stevejr/dtr-prometheus-exporter/dtrconnector"
   "github.com/stevejr/dtr-prometheus-exporter/config"
-  // api "github.com/stevejr/dtr-prometheus-exporter/api"
 )
 
 var (
