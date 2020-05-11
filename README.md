@@ -59,16 +59,15 @@ The exporter can be configured with commandline arguments, environment variables
 ## Exported metrics
 
 ```bash
-# HELP dtr_job_total DTR job total
+ HELP dtr_job_total DTR job total
 # TYPE dtr_job_total gauge
-dtr_job_total{action="poll_mirror",status="done"} 50
+dtr_job_total{action="license_update",status="done"} 1
+dtr_job_total{action="poll_mirror",status="done"} 49
 dtr_job_total{action="tag_prune",status="done"} 50
-# HELP dtr_replica_healthy_total Healthy count of replicas
-# TYPE dtr_replica_healthy_total gauge
-dtr_replica_healthy_total{name="healthy"} 3
-# HELP dtr_replica_unhealthy_total UnHealthy count of replicas
-# TYPE dtr_replica_unhealthy_total gauge
-dtr_replica_unhealthy_total{name="unhealthy"} 0
+# HELP dtr_replica_health_total DTR Replica Health count
+# TYPE dtr_replica_health_total gauge
+dtr_replica_health_total{health="healthy"} 3
+dtr_replica_health_total{health="unhealthy"} 0
 # HELP dtr_up Whether the DTR scrape was successful
 # TYPE dtr_up gauge
 dtr_up 1

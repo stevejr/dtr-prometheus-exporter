@@ -2,7 +2,6 @@ package collector
 
 import (
 	"fmt"
-	"strings"
   dtr "github.com/stevejr/dtr-prometheus-exporter/client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -28,17 +27,16 @@ type Collector struct {
 
   up *prometheus.Desc
   
-  csReplicaHealthyCounts      csReplicaHealthMetrics
-	csReplicaUnHealthyCounts    csReplicaHealthMetrics
+	csReplicaHealthCounts       csReplicaHealthMetrics
 	
 	jobActionCounts							jobMetrics
 }
 
-func newCSReplicaHealthMetrics(itemName string) csReplicaHealthMetrics {
+func newCSReplicaHealthMetrics(labels ...string) csReplicaHealthMetrics {
 
 	return csReplicaHealthMetrics{
-		health: prometheus.NewDesc(fmt.Sprintf("dtr_replica_%s_total", strings.ToLower(itemName)),
-			fmt.Sprintf("%s count of replicas", itemName), []string{"name"}, nil),
+		health: prometheus.NewDesc(fmt.Sprintf("dtr_replica_health_total"),
+			fmt.Sprintf("DTR Replica Health count"), labels, nil),
 	}
 }
 
@@ -58,9 +56,8 @@ func New(client *dtr.DTRClient, log *logrus.Logger) *Collector {
 
 		up: prometheus.NewDesc("dtr_up", "Whether the DTR scrape was successful", nil, nil),
 
-    csReplicaHealthyCounts: newCSReplicaHealthMetrics("Healthy"),
-		csReplicaUnHealthyCounts: newCSReplicaHealthMetrics("UnHealthy"),
-		
+		csReplicaHealthCounts: newCSReplicaHealthMetrics("health"),
+
 		jobActionCounts: newJobMetrics("action", "status"),
 	}
 }
@@ -77,9 +74,7 @@ func describeJobMetrics(ch chan<- *prometheus.Desc, metrics *jobMetrics) {
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.up
 
-	describeCSReplicaHealthMetrics(ch, &c.csReplicaHealthyCounts)
-	describeCSReplicaHealthMetrics(ch, &c.csReplicaUnHealthyCounts)
-
+	describeCSReplicaHealthMetrics(ch, &c.csReplicaHealthCounts)
 	describeJobMetrics(ch, &c.jobActionCounts)
 }
 
@@ -116,8 +111,8 @@ func collectCSReplicaHealthMetrics(c *Collector, ch chan<- prometheus.Metric, st
     }
   }
 
-  collectReplicaHealth(ch, &c.csReplicaHealthyCounts, health, "healthy")
-  collectReplicaHealth(ch, &c.csReplicaUnHealthyCounts, unhealthy, "unhealthy")
+  collectReplicaHealth(ch, &c.csReplicaHealthCounts, health, "healthy")
+  collectReplicaHealth(ch, &c.csReplicaHealthCounts, unhealthy, "unhealthy")
 }
 
 func collectJobMetrics(c *Collector, ch chan<- prometheus.Metric, stats *dtr.Stats) {
