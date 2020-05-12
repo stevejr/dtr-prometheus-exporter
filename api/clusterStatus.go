@@ -176,6 +176,18 @@ type CSReplicaHealth struct {
   HealthyCount        int
 }
 
+// CSReplicaStats - struct to hold the individual replica-db-table stats
+type CSReplicaStats struct {
+	DB 										string
+	Name 									string
+	QueryEngine 					
+	StorageEngine
+}
+// CSStats - main struct to hold the stats
+type CSStats struct {
+	Stats 	 							*[]CSReplicaStats 
+}
+
 // GetCSReplicaHealthStats - Get the ReplicaHealth stats
 func GetCSReplicaHealthStats(jsonData []byte) (*[]CSReplicaHealth, error) {
   var result []CSReplicaHealth
@@ -225,9 +237,10 @@ func GetCSStats(jsonData []byte) (*[]Stats, error) {
   }
 
 	for _, stat := range dtrClusterStatus.RethinkSystemTables.Stats {
-		if stat.Server != "" {
-			csStats = append(csStats, stat)
-		}
+		csStats = append(csStats, stat)
+		// if stat.Server != "" {
+		// 	csStats = append(csStats, stat)
+		// }
 	}
 	return &csStats, nil
 }

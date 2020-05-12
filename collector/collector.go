@@ -5,6 +5,8 @@ import (
   dtr "github.com/stevejr/dtr-prometheus-exporter/client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
+	"strings"
+	api "github.com/stevejr/dtr-prometheus-exporter/api"
 )
 
 type csReplicaHealthMetrics struct {
@@ -31,7 +33,7 @@ type csTableQueryEngineMetrics struct {
 	writtenDocsTotal						*prometheus.Desc
 }
 
-type csTableDiskMetrics struct {
+type csTableStorageEngineMetrics struct {
 	preallocatedBytes							*prometheus.Desc
 	readBytesSec									*prometheus.Desc
 	readBytesTotal								*prometheus.Desc
@@ -53,7 +55,7 @@ type Collector struct {
 	csTableStatusCounts					csTableStatusMetrics				
 
 	csTableQueryEngineCounts		csTableQueryEngineMetrics
-	csTableDiskCounts						csTableDiskMetrics	
+	csTableStorageEngineCounts	csTableStorageEngineMetrics	
 	jobActionCounts							jobMetrics
 }
 
@@ -76,9 +78,36 @@ func newCSTableStatusMetrics(labels ...string) csTableStatusMetrics {
 func newCSTableQueryEngineMetrics(labels ...string) csTableQueryEngineMetrics {
 
 	return csTableQueryEngineMetrics{
-		readDocsSec: prometheus.NewDesc(fmt.Sprintf("dtr_table_qe_read_docs_seconds"),
+		readDocsSec: prometheus.NewDesc(fmt.Sprintf("dtr_table_queryengine_read_docs_seconds"),
 		fmt.Sprintf("DTR table query engine read docs per second per replica"), labels, nil),
+		readDocsTotal: prometheus.NewDesc(fmt.Sprintf("dtr_table_queryengine_read_docs_total"),
+		fmt.Sprintf("DTR table query engine read docs total per replica"), labels, nil),
+		writtenDocsSec: prometheus.NewDesc(fmt.Sprintf("dtr_table_queryengine_written_docs_seconds"),
+		fmt.Sprintf("DTR table query engine written docs per second per replica"), labels, nil),
+		writtenDocsTotal: prometheus.NewDesc(fmt.Sprintf("dtr_table_queryengine_written_docs_total"),
+		fmt.Sprintf("DTR table query engine written docs total per replica"), labels, nil),
+	}
+}
 
+func newCSTableStorageEngineMetrics(labels ...string) csTableStorageEngineMetrics {
+
+	return csTableStorageEngineMetrics{
+		preallocatedBytes: prometheus.NewDesc(fmt.Sprintf("dtr_table_disk_preallocated_bytes"),
+		fmt.Sprintf("DTR table disk space preallocated bytes per replica"), labels, nil),
+		readBytesSec: prometheus.NewDesc(fmt.Sprintf("dtr_table_disk_read_bytes_seconds"),
+		fmt.Sprintf("DTR table disk read bytes per second per replica"), labels, nil),
+		readBytesTotal: prometheus.NewDesc(fmt.Sprintf("dtr_table_disk_read_total_bytes"),
+		fmt.Sprintf("DTR table disk read bytes total per replica"), labels, nil),
+		usedDataBytes: prometheus.NewDesc(fmt.Sprintf("dtr_table_disk_used_data_bytes"),
+		fmt.Sprintf("DTR table disk space used data bytes per replica"), labels, nil),
+		usedGarbageBytes: prometheus.NewDesc(fmt.Sprintf("dtr_table_disk_used_garbage_bytes"),
+		fmt.Sprintf("DTR table disk space used garbage bytes per replica"), labels, nil),
+		usedMetadataBytes: prometheus.NewDesc(fmt.Sprintf("dtr_table_disk_used_metadata_bytes"),
+		fmt.Sprintf("DTR table disk space use metadata bytes per replica"), labels, nil),
+		writtenBytesSec: prometheus.NewDesc(fmt.Sprintf("dtr_table_disk_written_bytes_second"),
+		fmt.Sprintf("DTR table disk written bytes per second replica"), labels, nil),
+		writtenBytesTotal: prometheus.NewDesc(fmt.Sprintf("dtr_table_disk_written_total_bytes"),
+		fmt.Sprintf("DTR table disk written bytes total per replica"), labels, nil),
 	}
 }
 
@@ -101,7 +130,8 @@ func New(client *dtr.DTRClient, log *logrus.Logger) *Collector {
 		csReplicaHealthCounts: newCSReplicaHealthMetrics("health"),
 		csTableStatusCounts: newCSTableStatusMetrics("db", "table", "status"),
 		
-		csTableQueryEngineCounts: newCSTableQueryEngineMetrics("db", "table", "replica"),
+		csTableQueryEngineCounts: newCSTableQueryEngineMetrics("type", "db", "table", "replica"),
+		csTableStorageEngineCounts: newCSTableStorageEngineMetrics("type", "db", "table", "replica"),
 
 		jobActionCounts: newJobMetrics("action", "status"),
 	}
@@ -117,6 +147,20 @@ func describeCSTableStatusMetrics(ch chan<- *prometheus.Desc, metrics *csTableSt
 
 func describeCSTableQueryEngineMetrics(ch chan<- *prometheus.Desc, metrics *csTableQueryEngineMetrics) {
 	ch <- metrics.readDocsSec
+	ch <- metrics.readDocsTotal
+	ch <- metrics.writtenDocsSec
+	ch <- metrics.writtenDocsTotal
+}
+
+func describeCSTableStorageEngineMetrics(ch chan<- *prometheus.Desc, metrics *csTableStorageEngineMetrics) {
+	ch <- metrics.preallocatedBytes
+	ch <- metrics.readBytesSec
+	ch <- metrics.readBytesTotal
+	ch <- metrics.usedDataBytes
+	ch <- metrics.usedGarbageBytes
+	ch <- metrics.usedMetadataBytes
+	ch <- metrics.writtenBytesSec
+	ch <- metrics.writtenBytesTotal
 }
 
 func describeJobMetrics(ch chan<- *prometheus.Desc, metrics *jobMetrics) {
@@ -130,6 +174,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	describeCSReplicaHealthMetrics(ch, &c.csReplicaHealthCounts)
 	describeCSTableStatusMetrics(ch, &c.csTableStatusCounts)
 	describeCSTableQueryEngineMetrics(ch, &c.csTableQueryEngineCounts)
+	describeCSTableStorageEngineMetrics(ch, &c.csTableStorageEngineCounts)
 	describeJobMetrics(ch, &c.jobActionCounts)
 }
 
@@ -144,6 +189,7 @@ func scrapeDTR(c *Collector, ch chan<- prometheus.Metric) {
 		collectCSReplicaHealthMetrics(c, ch, stats)
 		collectCSTableStatusMetrics(c, ch, stats)
 		collectCSTableQueryEngineMetrics(c, ch, stats)
+		collectCSTableStorageEngineMetrics(c, ch, stats)
 
     c.log.Info("Collected DTR ClusterStatus API data")
     collectJobMetrics(c, ch, stats)
@@ -196,9 +242,27 @@ func collectCSTableStatusMetrics(c *Collector, ch chan<- prometheus.Metric, stat
 
 func collectCSTableQueryEngineMetrics(c *Collector, ch chan<- prometheus.Metric, stats *dtr.Stats) {
 
+	replica := ""
+
 	for _, stat := range *stats.CSStats {
-		fmt.Printf ("stat: %+v\n", stat)
-		collectTableQueryEngineCounts(ch, &c.csTableQueryEngineCounts, stat.QueryEngine.ReadDocsPerSec, stat.Db, stat.Table, stat.Server)
+		if stat.Server != "" {
+			replica = strings.Split(stat.Server, "_")[2]
+		}
+		idType := stat.ID[0]		
+		collectTableQueryEngineCounts(ch, &c.csTableQueryEngineCounts, &stat.QueryEngine, idType, stat.Db, stat.Table, replica)
+	}
+}
+
+func collectCSTableStorageEngineMetrics(c *Collector, ch chan<- prometheus.Metric, stats *dtr.Stats) {
+
+	replica := ""
+
+	for _, stat := range *stats.CSStats {
+		if stat.Server != "" {
+			replica = strings.Split(stat.Server, "_")[2]
+		}
+		idType := stat.ID[0]	
+		collectTableStorageEngineCounts(ch, &c.csTableStorageEngineCounts, &stat.StorageEngine, idType, stat.Db, stat.Table, replica)
 	}
 }
 
@@ -223,10 +287,23 @@ func collectTableStatus(ch chan<- prometheus.Metric, metrics *csTableStatusMetri
 	ch <- prometheus.MustNewConstMetric(metrics.readiness, prometheus.GaugeValue, float64(count), labelValues...)	
 }
 
-func collectTableQueryEngineCounts(ch chan<- prometheus.Metric, metrics *csTableQueryEngineMetrics, counts float64, labelValues ...string) {
-	ch <- prometheus.MustNewConstMetric(metrics.readDocsSec, prometheus.GaugeValue, float64(counts), labelValues...)	
+func collectTableQueryEngineCounts(ch chan<- prometheus.Metric, metrics *csTableQueryEngineMetrics, qe *api.QueryEngine, labelValues ...string) {
+	ch <- prometheus.MustNewConstMetric(metrics.readDocsSec, prometheus.GaugeValue, float64(qe.ReadDocsPerSec), labelValues...)	
+	ch <- prometheus.MustNewConstMetric(metrics.readDocsTotal, prometheus.GaugeValue, float64(qe.ReadDocsTotal), labelValues...)
+	ch <- prometheus.MustNewConstMetric(metrics.writtenDocsSec, prometheus.GaugeValue, float64(qe.WrittenDocsPerSec), labelValues...)	
+	ch <- prometheus.MustNewConstMetric(metrics.writtenDocsTotal, prometheus.GaugeValue, float64(qe.WrittenDocsTotal), labelValues...)
 }
 
+func collectTableStorageEngineCounts(ch chan<- prometheus.Metric, metrics *csTableStorageEngineMetrics, se *api.StorageEngine, labelValues ...string) {
+	ch <- prometheus.MustNewConstMetric(metrics.preallocatedBytes, prometheus.GaugeValue, float64(se.Disk.SpaceUsage.PreallocatedBytes), labelValues...)
+	ch <- prometheus.MustNewConstMetric(metrics.readBytesSec, prometheus.GaugeValue, float64(se.Disk.ReadBytesPerSec), labelValues...)	
+	ch <- prometheus.MustNewConstMetric(metrics.readBytesTotal, prometheus.GaugeValue, float64(se.Disk.ReadBytesTotal), labelValues...)	
+	ch <- prometheus.MustNewConstMetric(metrics.usedDataBytes, prometheus.GaugeValue, float64(se.Disk.SpaceUsage.DataBytes), labelValues...)	
+	ch <- prometheus.MustNewConstMetric(metrics.usedGarbageBytes, prometheus.GaugeValue, float64(se.Disk.SpaceUsage.GarbageBytes), labelValues...)	
+	ch <- prometheus.MustNewConstMetric(metrics.usedMetadataBytes, prometheus.GaugeValue, float64(se.Disk.SpaceUsage.MetadataBytes), labelValues...)	
+	ch <- prometheus.MustNewConstMetric(metrics.writtenBytesSec, prometheus.GaugeValue, float64(se.Disk.WrittenBytesPerSec), labelValues...)	
+	ch <- prometheus.MustNewConstMetric(metrics.writtenBytesTotal, prometheus.GaugeValue, float64(se.Disk.WrittenBytesTotal), labelValues...)		
+}
 func collectJobCounts(ch chan<- prometheus.Metric, metrics *jobMetrics, count int, labelValues ...string) {
 	ch <- prometheus.MustNewConstMetric(metrics.jobCount, prometheus.GaugeValue, float64(count), labelValues...)	
 }

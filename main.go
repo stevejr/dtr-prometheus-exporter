@@ -39,7 +39,7 @@ func readAndValidateConfig(result *config.Config) {
 	flag.StringVar(&result.DTR.CertificateFile, "dtr-cert", "", "Path to certificate file for tls connection")
 	flag.StringVar(&result.DTR.KeyFile, "dtr-key", "", "Path to key file for tls connection")
 	// API related flags
-	flag.UintVar(&result.API.JobCount, "job-count", 10, "Number of Job entries to retrieve from Jobs API")
+	flag.UintVar(&result.API.JobCount, "job-count", 100, "Number of Job entries to retrieve from Jobs API")
 	
 
 	flag.Parse()
