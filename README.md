@@ -36,6 +36,17 @@ docker run \
 dockerps/dtr-prometheus-exporter:alpine
 ```
 
+To build the docker image from source:
+
+```bash
+docker image build \
+--no-cache=true \
+--build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+--build-arg VCS_REF=$(git rev-parse --short HEAD) \
+--build-arg BUILD_VERSION=alpine \
+-t dockerps/dtr-prometheus-exporter:alpine .
+```
+
 >**NOTE:**  with the above you have to bind mount your DTR certificates into the container so that the can be used by the app.
 
 ## Configuration
