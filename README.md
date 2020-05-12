@@ -33,7 +33,7 @@ docker run \
 -e DTR_KEY=/dtrcerts/[YOUR KEY.PEM FILENAME] \
 -e DTR_USERNAME=[YOUR DTR USERNAME] \
 -e DTR_PASSWORD=[YOUR DTR PASSWORD] \
-stevejr/dtr-prometheus-exporter:alpine
+dockerps/dtr-prometheus-exporter:alpine
 ```
 
 >**NOTE:**  with the above you have to bind mount your DTR certificates into the container so that the can be used by the app.
