@@ -9,7 +9,7 @@ Docker Trusted Registry (DTR) metrics Prometheus exporter. Issues HTTPs calls to
 You need to have a Go 1.10+ environment configured. Clone the repo (outside your `GOPATH`) and then:
 
 ```bash
-go build -o dtr-prometheus-exporter
+go build -o dtr-prometheus-exporter && 
 ./dtr-prometheus-exporter \
 --connection-string=[YOUR CONNECTION STRING] \
 --dtr-ca=[YOUR DTR CA.PEM] \
@@ -33,6 +33,8 @@ docker image build \
 -t dockerps/dtr-prometheus-exporter:alpine .
 ```
 
+To run the docker image:
+
 ```bash
 docker run \
 -d \
@@ -48,6 +50,10 @@ dockerps/dtr-prometheus-exporter:alpine
 ```
 
 >**NOTE:**  with the above you have to bind mount your DTR certificates into the container so that the can be used by the app.
+
+### Using Helm
+
+To deploy the dtr-prometheus-exporter into a Kubernetes cluster a helm chart is available in the helm directory. You should install Helm as per the Helm documentation and then amend the values.yaml as required before deploying the chart.
 
 ## Configuration
 
