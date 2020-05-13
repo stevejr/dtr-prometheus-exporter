@@ -1,0 +1,93 @@
+# Default values for dtr_prometheus_exporter.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: dockerps/dtr-prometheus-exporter
+  tag: alpine
+  ## Specify an imagePullPolicy (Required)
+  ## It's recommended to change this to 'Always' if the image tag is 'latest'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#updating-images
+  pullPolicy: IfNotPresent
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ##
+  pullSecrets:
+    - hub-stevejr  
+
+service:
+  containerPort: 9580
+  name: http
+  type: ClusterIP
+  port: 9580
+  protocol: TCP
+
+resources: {}
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: node-role.kubernetes.io/master
+              operator: Exists 
+
+## Exporter specifics
+exporter:
+  # Used by the CONNECTION_STRING variable - this is the DTR URL to connect to
+  dtrURL: 'https://dtr-clusterd57da04c09b9-octj.uksouth.cloudapp.azure.com'
+
+  # Used by the VERBOSE variable - enables debug logging - default is false
+  log:
+    debug: true
+
+  # Used by the DTR_USERNAME and DTR_PASSWORD variables - these are used for authenticating against DTR
+  # Mandatory
+  dtrUser: 
+  dtrPassword: 
+
+  # If set then this secret will be used for retrieving the dtrAUser and dtrPassword values
+  # existingSecret: ""
+
+  # If set then this will be the key for the DTR Username secret to be retrieved
+  # userKey: ""
+
+  # If set then this will be the key for the DTR Password secret to be retrieved
+  # passwordKey: ""
+
+## Extra environment variables that will be pass onto deployment pods
+env: {}
+  # ENABLE_TLS variable to determine if connection between the exporter and DTR is using https - default is true
+  # JOB_COUNT variable - this is the number of results to return from the jobs API. Default is 100
+
+## The name of a secret in the same kubernetes namespace which contain values to be added to the environment
+## This can be useful for auth tokens, etc
+envFromSecret: ""
+
+serviceAccount:
+  # Specifies whether a ServiceAccount should be created
+  create: true
+  # The name of the ServiceAccount to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+## The location of the UCP Node certs which will be used in the https connection to DTR
+certs:
+  hostPath: /var/lib/docker/volumes/ucp-node-certs/_data
+
+extraVolumes: []
+
+extraVolumeMounts: []

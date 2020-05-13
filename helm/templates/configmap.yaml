@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "dtr_prometheus_exporter.fullname" . }}
+  labels:
+    app: {{ template "dtr_prometheus_exporter.name" . }}
+    chart: {{ template "dtr_prometheus_exporter.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  conection-string: {{ .Values.exporter.dtrURL | quote }}
+  verbose: {{ .Values.exporter.log.debug | quote }}

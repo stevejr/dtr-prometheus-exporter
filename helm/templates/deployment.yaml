@@ -1,0 +1,110 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "dtr_prometheus_exporter.fullname" . }}
+  labels:
+    app: {{ template "dtr_prometheus_exporter.name" . }}
+    chart: {{ template "dtr_prometheus_exporter.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "dtr_prometheus_exporter.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "dtr_prometheus_exporter.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ template "dtr_prometheus_exporter.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: CONNECTION_STRING
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "dtr_prometheus_exporter.fullname" . }}
+                  key: conection-string
+            - name: VERBOSE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "dtr_prometheus_exporter.fullname" . }}
+                  key: verbose
+            - name: DTR_CA
+              value: "/ucpcerts/ca.pem"
+            - name: DTR_CERT
+              value: "/ucpcerts/cert.pem"
+            - name: DTR_KEY
+              value: "/ucpcerts/key.pem"
+            {{- if not .Values.env.DTR_USERNAME }}
+            - name: DTR_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.exporter.existingSecret | default (include "dtr_prometheus_exporter.fullname" .) }}
+                  key: {{ .Values.exporter.userKey | default "dtr-user" }}
+            {{- end }}
+            {{- if not .Values.env.DTR_PASSWORD }}
+            - name: DTR_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.exporter.existingSecret | default (include "dtr_prometheus_exporter.fullname" .) }}
+                  key: {{ .Values.exporter.passwordKey | default "dtr-password" }}
+            {{- end }}
+{{- range $key, $value := .Values.env }}
+            - name: "{{ $key }}"
+              value: "{{ $value }}"
+{{- end }}
+          securityContext:
+            readOnlyRootFilesystem: true
+          ports:
+            - name: {{ .Values.service.name }}
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: {{ .Values.service.protocol }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.name }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.name }}
+          volumeMounts:
+            - name: ucpcerts
+              mountPath: /ucpcerts
+              readOnly: true
+            {{- if .Values.extraVolumeMounts }}
+{{ toYaml .Values.extraVolumeMounts | indent 12 }}
+            {{- end }}              
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.image.pullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      volumes:
+      - hostPath:
+          path: {{ .Values.certs.hostPath }}
+          type: ""
+        name: ucpcerts
+      {{- if .Values.extraVolumes }}
+{{ toYaml .Values.extraVolumes | indent 6 }}
+      {{- end }}
