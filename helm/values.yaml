@@ -15,8 +15,7 @@ image:
   ## Secrets must be manually created in the namespace.
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   ##
-  pullSecrets:
-    - hub-stevejr  
+  pullSecrets: []
 
 service:
   containerPort: 9580
@@ -37,6 +36,7 @@ nodeSelector: {}
 
 tolerations: []
 
+## Node Affinity rule for scheduling onto a master
 affinity:
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
@@ -48,7 +48,8 @@ affinity:
 ## Exporter specifics
 exporter:
   # Used by the CONNECTION_STRING variable - this is the DTR URL to connect to
-  dtrURL: 'https://dtr-clusterd57da04c09b9-octj.uksouth.cloudapp.azure.com'
+  # Mandatory
+  dtrURL: 
 
   # Used by the VERBOSE variable - enables debug logging - default is false
   log:
@@ -85,8 +86,9 @@ serviceAccount:
   name: ""
 
 ## The location of the UCP Node certs which will be used in the https connection to DTR
+## Mandatory
 certs:
-  hostPath: /var/lib/docker/volumes/ucp-node-certs/_data
+  hostPath: 
 
 extraVolumes: []
 
