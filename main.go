@@ -1,10 +1,10 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"time"
-	"crypto/tls"
 	// "io/ioutil"
 	// "encoding/json"
 
@@ -16,13 +16,13 @@ import (
 
 	dtr "github.com/stevejr/dtr-prometheus-exporter/client"
 	"github.com/stevejr/dtr-prometheus-exporter/collector"
-  "github.com/stevejr/dtr-prometheus-exporter/dtrconnector"
-  "github.com/stevejr/dtr-prometheus-exporter/config"
+	"github.com/stevejr/dtr-prometheus-exporter/config"
+	"github.com/stevejr/dtr-prometheus-exporter/dtrconnector"
 )
 
 var (
-  log = logrus.New()
-  cfg config.Config
+	log = logrus.New()
+	cfg config.Config
 )
 
 func readAndValidateConfig(result *config.Config) {
@@ -40,7 +40,6 @@ func readAndValidateConfig(result *config.Config) {
 	flag.StringVar(&result.DTR.KeyFile, "dtr-key", "", "Path to key file for tls connection")
 	// API related flags
 	flag.UintVar(&result.API.JobCount, "job-count", 100, "Number of Job entries to retrieve from Jobs API")
-	
 
 	flag.Parse()
 
@@ -73,23 +72,23 @@ func setupLogger(cfg config.Config) {
 }
 
 func startHTTPServer(cfg config.Config) {
-  listenAddr := fmt.Sprintf(":%d", cfg.Web.ListenPort)
-  // fmt.Printf("HTTP Server Listen Port s%\n", listenAddr)
+	listenAddr := fmt.Sprintf(":%d", cfg.Web.ListenPort)
+	// fmt.Printf("HTTP Server Listen Port s%\n", listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }
 
 func main() {
 	var tlsConfig *tls.Config
-  var err error
-  var cfg config.Config
-	
+	var err error
+	var cfg config.Config
+
 	readAndValidateConfig(&cfg)
 	setupLogger(cfg)
 
 	log.WithFields(logrus.Fields{
-		"port":    cfg.Web.ListenPort,
-		"timeout": cfg.Scrape.Timeout,
-		"verbose": cfg.Log.Debug,
+		"port":              cfg.Web.ListenPort,
+		"timeout":           cfg.Scrape.Timeout,
+		"verbose":           cfg.Log.Debug,
 		"connection-string": cfg.DTR.DTRAPIAddress,
 	}).Infof("DTR exporter configured")
 
@@ -102,13 +101,13 @@ func main() {
 		}
 	}
 
-  // fmt.Println("Creating new DTR Client")
-  client := dtr.New(cfg, tlsConfig)
-  // fmt.Println("Creating new Prom Collector")
-  coll := collector.New(client, log)
-  // fmt.Println("Registring new Prom Collector")
+	// fmt.Println("Creating new DTR Client")
+	client := dtr.New(cfg, tlsConfig)
+	// fmt.Println("Creating new Prom Collector")
+	coll := collector.New(client, log)
+	// fmt.Println("Registring new Prom Collector")
 	prometheus.MustRegister(coll)
 
-  // fmt.Println("Starting new HTTP Server")
-  startHTTPServer(cfg)
+	// fmt.Println("Starting new HTTP Server")
+	startHTTPServer(cfg)
 }

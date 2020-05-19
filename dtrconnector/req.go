@@ -1,17 +1,17 @@
 package dtrconnector
 
 import (
-  "fmt"
-  "net/http"
-  "github.com/stevejr/dtr-prometheus-exporter/config"
-  "io/ioutil"
 	"crypto/tls"
+	"fmt"
+	"github.com/stevejr/dtr-prometheus-exporter/config"
+	"io/ioutil"
+	"net/http"
 	"strings"
 )
 
-func setAPIEndpoint (ae string, cs *string) {
+func setAPIEndpoint(ae string, cs *string) {
 
-	if ae[0:0] == "/" { 
+	if ae[0:0] == "/" {
 		ae = strings.Replace(ae, "/", "", 1)
 		fmt.Printf("apiEndpoint: %s\n", ae)
 	}
@@ -19,59 +19,60 @@ func setAPIEndpoint (ae string, cs *string) {
 }
 
 // MakeRequest prepares a new http client request
-func MakeRequest (cfg config.Config, tlsConfig *tls.Config) (*http.Response, error) {
+func MakeRequest(cfg config.Config, tlsConfig *tls.Config) (*http.Response, error) {
 
-  client := &http.Client{
+	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: true,
-				RootCAs:      tlsConfig.RootCAs,
-				Certificates: tlsConfig.Certificates,
+				RootCAs:            tlsConfig.RootCAs,
+				Certificates:       tlsConfig.Certificates,
 			},
 		},
-  }
-  
-  req, err := http.NewRequest("GET", cfg.DTR.DTRAPIAddress, nil)
-  if err != nil {
-    return nil, fmt.Errorf("Could not create new http request")
-  }
+	}
+
+	req, err := http.NewRequest("GET", cfg.DTR.DTRAPIAddress, nil)
+	if err != nil {
+		return nil, fmt.Errorf("Could not create new http request")
+	}
 
 	req.SetBasicAuth(cfg.DTR.Username, cfg.DTR.Password)
-  req.Header.Set("Accept", "application/json")
-  req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
-  resp, err := client.Do(req)
-  if err != nil {
-    return nil, err
-  }
-  
-  return resp, nil
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
+// TODO - Users should be able to pass in their own client and we should default to a http client if it isn't
 // MakeClientRequest prepares a new http client request
-func MakeClientRequest (cs string, tlsConfig *tls.Config, username string, password string, apiEndpoint string) ([]byte, error) {
+func MakeClientRequest(cs string, tlsConfig *tls.Config, username string, password string, apiEndpoint string) ([]byte, error) {
 
 	client := &http.Client{
-    Transport: &http.Transport{
-      TLSClientConfig: &tls.Config{
-        InsecureSkipVerify: true,
-        RootCAs:      tlsConfig.RootCAs,
-        Certificates: tlsConfig.Certificates,
-      },
-    },
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+				RootCAs:            tlsConfig.RootCAs,
+				Certificates:       tlsConfig.Certificates,
+			},
+		},
 	}
-	
+
 	setAPIEndpoint(apiEndpoint, &cs)
 
 	req, err := http.NewRequest("GET", cs, nil)
 	if err != nil {
-	  return nil, fmt.Errorf("Could not create new http request")
+		return nil, fmt.Errorf("Could not create new http request")
 	}
-  
+
 	req.SetBasicAuth(username, password)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-  
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
