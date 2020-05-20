@@ -31,8 +31,6 @@ LABEL com.mirantis.schema-version="1.0" \
   --mount type=bind,source=[YOUR DTR CERTS DIR],target=/dtrcerts,readonly \
   -e CONNECTION_STRING=[YOUR CONNECTION STRING] \
   -e DTR_CA=/dtrcerts/[YOUR CA.PEM FILENAME] \
-  -e DTR_CERT=/dtrcerts/[YOUR CERT.PEM FILENAME] \
-  -e DTR_KEY=/dtrcerts/[YOUR KEY.PEM FILENAME] \
   -e DTR_USERNAME=[YOUR DTR USERNAME] \
   -e DTR_PASSWORD=[YOUR DTR PASSWORD] \
   dockerps/dtr-prometheus-exporter:alpine"
