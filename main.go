@@ -29,7 +29,7 @@ func readAndValidateConfig(result *config.Config) {
 
 	flag.StringVar(&result.DTR.DTRAPIAddress, "connection-string", "", "DTR connection string")
 	flag.UintVar(&result.Web.ListenPort, "port", 9580, "Port to expose scraping endpoint on")
-	flag.DurationVar(&result.Scrape.Timeout, "timeout", time.Second*30, "Timeout for scrape")
+	flag.DurationVar(&result.Scrape.Timeout, "timeout", time.Second*10, "Timeout for scrape")
 	flag.BoolVar(&result.Log.Debug, "verbose", false, "Enable verbose logging")
 
 	flag.StringVar(&result.DTR.Username, "dtr-username", "", "Username of DTR user")
@@ -102,7 +102,7 @@ func main() {
 	}
 
 	// fmt.Println("Creating new DTR Client")
-	client := dtr.New(cfg, tlsConfig)
+	client := dtr.New(nil, cfg, tlsConfig)
 	// fmt.Println("Creating new Prom Collector")
 	coll := collector.New(client, log)
 	// fmt.Println("Registring new Prom Collector")

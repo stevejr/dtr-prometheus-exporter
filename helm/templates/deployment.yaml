@@ -36,11 +36,7 @@ spec:
                   name: {{ template "dtr_prometheus_exporter.fullname" . }}
                   key: verbose
             - name: DTR_CA
-              value: "/ucpcerts/ca.pem"
-            - name: DTR_CERT
-              value: "/ucpcerts/cert.pem"
-            - name: DTR_KEY
-              value: "/ucpcerts/key.pem"
+              value: "/dtrcerts/dtr_ca.pem"
             {{- if not .Values.env.DTR_USERNAME }}
             - name: DTR_USERNAME
               valueFrom:
@@ -74,8 +70,9 @@ spec:
               path: /
               port: {{ .Values.service.name }}
           volumeMounts:
-            - name: ucpcerts
-              mountPath: /ucpcerts
+            - name: dtrcerts
+              mountPath: /dtrcerts/dtr_ca.pem
+              subPath: dtr_ca.pem
               readOnly: true
             {{- if .Values.extraVolumeMounts }}
 {{ toYaml .Values.extraVolumeMounts | indent 12 }}
@@ -101,10 +98,9 @@ spec:
       {{- end }}
       {{- end }}
       volumes:
-      - hostPath:
-          path: {{ .Values.certs.hostPath }}
-          type: ""
-        name: ucpcerts
+      - name: dtrcerts
+        configMap:
+          name: {{ template "dtr_prometheus_exporter.fullname" . }}
       {{- if .Values.extraVolumes }}
 {{ toYaml .Values.extraVolumes | indent 6 }}
       {{- end }}

@@ -9,16 +9,22 @@ Docker Trusted Registry (DTR) metrics Prometheus exporter. Issues HTTPs calls to
 You need to have a Go 1.10+ environment configured. Clone the repo (outside your `GOPATH`) and then:
 
 ```bash
-go build -o dtr-prometheus-exporter && 
+go build -o dtr-prometheus-exporter 
+```
+
+To run the dtr-prometheus-exporter tool:
+
+```bash
 ./dtr-prometheus-exporter \
 --connection-string=[YOUR CONNECTION STRING] \
 --dtr-ca=[YOUR DTR CA.PEM] \
---dtr-cert=[YOUR DTR CERT.PEM] \
---dtr-key=[YOUR DTR KEY.PEM] \
 --dtr-username=[YOUR DTR USERNAME] \
 --dtr-password=[YOUR DTR PASSWORD] \
 --enable-tls=[TRUE||FALSE]
 ```
+
+>**NOTE:**  with the above only the DTR Root CA is required as DTR does not enforce Client authentication.
+
 
 ### Using Docker
 
@@ -41,9 +47,7 @@ docker run \
 -p 9580:9580 \
 --mount type=bind,source=[YOUR DTR CERTS DIR],target=/dtrcerts,readonly \
 -e CONNECTION_STRING=[YOUR CONNECTION STRING] \
--e DTR_CA=/dtrcerts/[YOUR CA.PEM FILENAME] \
--e DTR_CERT=/dtrcerts/[YOUR CERT.PEM FILENAME] \
--e DTR_KEY=/dtrcerts/[YOUR KEY.PEM FILENAME] \
+-e DTR_CA=/dtrcerts/[YOUR DTR CA.PEM FILENAME] \
 -e DTR_USERNAME=[YOUR DTR USERNAME] \
 -e DTR_PASSWORD=[YOUR DTR PASSWORD] \
 dockerps/dtr-prometheus-exporter:alpine
@@ -55,6 +59,8 @@ dockerps/dtr-prometheus-exporter:alpine
 
 To deploy the dtr-prometheus-exporter into a Kubernetes cluster a helm chart is available in the helm directory. You should install Helm as per the Helm documentation and then amend the values.yaml as required before deploying the chart.
 
+You will need to place the contents of you DTR CA.pem into the file ./helm/files/dtr_ca.pem as this file will be created in a configmap which will then be mounted into the pod.
+
 ## Configuration
 
 The exporter can be configured with commandline arguments, environment variables and a configuration file. For the details on how to format the configuration file, visit [namsral/flag](https://github.com/namsral/flag) repo.
@@ -62,14 +68,14 @@ The exporter can be configured with commandline arguments, environment variables
 |Flag|ENV variable|Default|Meaning|
 |---|---|---|---|
 |--connection-string|CONNECTION_STRING|_no default_|Connection string for DTR including protocol and port|
-|--dtr-ca|DTR_CA|_no default_|The DTR CA certificate file|
+|--dtr-ca|DTR_CA|_no default_|The DTR Root CA certificate file|
 |--dtr-cert|DTR_CERT|_no default_|The DTR Cert certificate file|
 |--dtr-key|DTR_KEY|_no default_|The DTR Key certificate file|
 |--dtr-username|DTR_USERNAME|_no default_|The DTR username|
 |--dtr-password|DTR_PASSWORD|_no default_|The DTR password|
 |--enable-tls|ENABLE_TLS|true|Enable TLS on HTTP Client connection to DTR|
 |--port|PORT|9580|Port to expose scrape endpoint on|
-|--timeout|TIMEOUT|30s|Timeout when scraping the Service Bus|
+|--timeout|TIMEOUT|10s|Timeout when scraping the Service Bus|
 |--verbose|VERBOSE|false|Enable verbose logging|
 |--job-count|JOB_COUNT|100|Number of results to retrieve from the Jobs API|
 

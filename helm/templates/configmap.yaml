@@ -10,3 +10,5 @@ metadata:
 data:
   conection-string: {{ .Values.exporter.dtrURL | quote }}
   verbose: {{ .Values.exporter.log.debug | quote }}
+dtr_ca.pem: |-
+  {{ .Files.Get "files/dtr_ca.pem" }}
