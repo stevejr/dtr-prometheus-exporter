@@ -13,13 +13,14 @@ import (
 
 // DTRClient - DTR Client struct
 type DTRClient struct {
-	httpClient *http.Client
+	httpClient       *http.Client
 	connectionString string
 	tlsConfig        *tls.Config
 	timeout          time.Duration
 	username         string
 	password         string
 	jobCount         uint
+	Debug            bool
 }
 
 type clusterStatusStats struct {
@@ -41,15 +42,15 @@ func newHTTPClient(timeout time.Duration) *http.Client {
 }
 
 func newHTTPSClient(timeout time.Duration, tlsConfig *tls.Config) *http.Client {
-	var hc *http.Client 
-	
+	var hc *http.Client
+
 	if tlsConfig.Certificates == nil {
 		fmt.Println("HTTPS Client will be configured with RootCA only")
 		hc = &http.Client{
 			Timeout: timeout,
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
-					RootCAs:            tlsConfig.RootCAs,
+					RootCAs: tlsConfig.RootCAs,
 				},
 			},
 		}
@@ -59,8 +60,8 @@ func newHTTPSClient(timeout time.Duration, tlsConfig *tls.Config) *http.Client {
 			Timeout: 10 * time.Second,
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
-					RootCAs:            tlsConfig.RootCAs,
-					Certificates:       tlsConfig.Certificates,
+					RootCAs:      tlsConfig.RootCAs,
+					Certificates: tlsConfig.Certificates,
 				},
 			},
 		}
@@ -68,7 +69,6 @@ func newHTTPSClient(timeout time.Duration, tlsConfig *tls.Config) *http.Client {
 
 	return hc
 }
-
 
 // New - prepares a new http client
 func New(httpClient *http.Client, cfg config.Config, tlsConfig *tls.Config) *DTRClient {
@@ -78,21 +78,22 @@ func New(httpClient *http.Client, cfg config.Config, tlsConfig *tls.Config) *DTR
 		fmt.Println("Using default Golang HTTP Client")
 		if tlsConfig == nil {
 			fmt.Println("Creating standard HTTP Client")
-			hc = newHTTPClient(cfg.Scrape.Timeout) 
+			hc = newHTTPClient(cfg.Scrape.Timeout)
 		} else {
 			fmt.Println("Creating standard HTTPS Client")
-			hc = newHTTPSClient(cfg.Scrape.Timeout, tlsConfig) 
+			hc = newHTTPSClient(cfg.Scrape.Timeout, tlsConfig)
 		}
 	}
 
 	return &DTRClient{
-		httpClient: hc,
+		httpClient:       hc,
 		connectionString: cfg.DTR.DTRAPIAddress,
 		password:         cfg.DTR.Password,
 		timeout:          cfg.Scrape.Timeout,
 		tlsConfig:        tlsConfig,
 		username:         cfg.DTR.Username,
 		jobCount:         cfg.API.JobCount,
+		Debug:            cfg.Log.Debug,
 	}
 }
 
@@ -129,7 +130,6 @@ func (c *DTRClient) MakeRequest(apiEndpoint string) (*http.Response, error) {
 
 	return resp, nil
 }
-
 
 // GetDTRStats - Retrieve the DTR API related stats
 func (c *DTRClient) GetDTRStats() (*Stats, error) {
