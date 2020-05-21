@@ -262,9 +262,6 @@ func GetCSStats(jsonData []byte) (*[]Stats, error) {
 
 	for _, stat := range dtrClusterStatus.RethinkSystemTables.Stats {
 		csStats = append(csStats, stat)
-		// if stat.Server != "" {
-		// 	csStats = append(csStats, stat)
-		// }
 	}
 	return &csStats, nil
 }

@@ -15,9 +15,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	dtr "github.com/stevejr/dtr-prometheus-exporter/client"
-	"github.com/stevejr/dtr-prometheus-exporter/collector"
+	//	"github.com/stevejr/dtr-prometheus-exporter/collector"
 	"github.com/stevejr/dtr-prometheus-exporter/config"
 	"github.com/stevejr/dtr-prometheus-exporter/dtrconnector"
+	"github.com/stevejr/dtr-prometheus-exporter/exporter"
 )
 
 var (
@@ -104,9 +105,9 @@ func main() {
 	// fmt.Println("Creating new DTR Client")
 	client := dtr.New(nil, cfg, tlsConfig)
 	// fmt.Println("Creating new Prom Collector")
-	coll := collector.New(client, log)
+	promExporter := exporter.New(client, log)
 	// fmt.Println("Registring new Prom Collector")
-	prometheus.MustRegister(coll)
+	prometheus.MustRegister(promExporter)
 
 	// fmt.Println("Starting new HTTP Server")
 	startHTTPServer(cfg)
