@@ -36,6 +36,7 @@ func (e *DTRRethinkDBExporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.metrics.tableReplicaDataBytes
 	ch <- e.metrics.tableReplicaGarbageBytes
 	ch <- e.metrics.tableReplicaMetaDataBytes
+	ch <- e.metrics.tableReplicaPreAllocatedBytes
 
 	ch <- e.metrics.scrapeLatency
 
@@ -99,7 +100,7 @@ func (e *DTRRethinkDBExporter) initMetrics() {
 	e.metrics.tableDocsPerSecond = prometheus.NewDesc(
 		"dtr_table_docs_per_second",
 		"Number of reads and writes of documents per second from the table",
-		[]string{"db", "table", "replica", "operation"}, nil)
+		[]string{"db", "table", "operation"}, nil)
 
 	e.metrics.tableReplicaDocsPerSecond = prometheus.NewDesc(
 		"dtr_tablereplica_docs_per_second",
@@ -125,7 +126,10 @@ func (e *DTRRethinkDBExporter) initMetrics() {
 		"dtr_tablereplica_metadata_bytes",
 		"Table replica metadata size in stored bytes",
 		[]string{"db", "table", "replica"}, nil)
-
+	e.metrics.tableReplicaPreAllocatedBytes = prometheus.NewDesc(
+		"dtr_tablereplica_preallocated_bytes",
+		"Table replica preallocated size in stored bytes",
+		[]string{"db", "table", "replica"}, nil)
 	e.metrics.scrapeLatency = prometheus.NewDesc(
 		"dtr_scrape_latency",
 		"Latency of collecting scrape",

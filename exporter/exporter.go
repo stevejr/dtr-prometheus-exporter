@@ -32,12 +32,13 @@ type DTRRethinkDBExporter struct {
 		tableDocsPerSecond *prometheus.Desc
 		tableRowsCount     *prometheus.Desc
 
-		tableReplicaDocsPerSecond *prometheus.Desc
-		tableReplicaCacheBytes    *prometheus.Desc
-		tableReplicaIO            *prometheus.Desc
-		tableReplicaDataBytes     *prometheus.Desc
-		tableReplicaGarbageBytes  *prometheus.Desc
-		tableReplicaMetaDataBytes *prometheus.Desc
+		tableReplicaDocsPerSecond     *prometheus.Desc
+		tableReplicaCacheBytes        *prometheus.Desc
+		tableReplicaIO                *prometheus.Desc
+		tableReplicaDataBytes         *prometheus.Desc
+		tableReplicaGarbageBytes      *prometheus.Desc
+		tableReplicaMetaDataBytes     *prometheus.Desc
+		tableReplicaPreAllocatedBytes *prometheus.Desc
 
 		// DTR Details from replica_health json struct in cluster_status API response
 		serverHealth *prometheus.Desc
