@@ -16,8 +16,8 @@
   "editable": true,
   "gnetId": 5043,
   "graphTooltip": 0,
-  "id": 12,
-  "iteration": 1590147474954,
+  "id": 2,
+  "iteration": 1590166082524,
   "links": [],
   "panels": [
     {
@@ -262,7 +262,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "dtr_server_client_connections{replica=~\"$server.*\"}",
+          "expr": "sum(dtr_server_client_connections{replica=~\"$server.*\"})",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -345,7 +345,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "dtr_server_clients_active{replica=~\"$server.*\"}",
+          "expr": "sum(dtr_server_clients_active{replica=~\"$server.*\"})",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -783,7 +783,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "100 * (count (dtr_server_health_count{health=\"healthy\"}) / sum (dtr_server_health_count))",
+          "expr": "100 * dtr_server_health_count{health=\"healthy\"}/ ignoring(health) dtr_server_count",
           "format": "time_series",
           "instant": true,
           "intervalFactor": 1,
@@ -937,21 +937,21 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_server_queries_per_second{instance=~\"$instance.*\", replica=~\"$server.*\"}",
+          "expr": "dtr_server_queries_per_second{replica=~\"$server.*\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "{{replica}} Queries/sec",
           "refId": "A"
         },
         {
-          "expr": "dtr_server_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", operation=\"read\"}",
+          "expr": "dtr_server_docs_per_second{replica=~\"$server.*\", operation=\"read\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "{{replica}} Read/sec",
           "refId": "B"
         },
         {
-          "expr": "dtr_server_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", operation=\"written\"}",
+          "expr": "dtr_server_docs_per_second{replica=~\"$server.*\", operation=\"written\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "{{replica}} Write/sec",
@@ -1000,250 +1000,256 @@
       }
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "prometheus",
-      "format": "short",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
       "gridPos": {
         "h": 7,
         "w": 4,
         "x": 12,
         "y": 23
       },
-      "id": 14,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": true,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": true
+      "id": 35,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
       },
-      "tableColumn": "",
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_server_queries_total{instance=~\"$instance.*\", replica=~\"$server.*\"}",
+          "expr": "dtr_server_queries_total{replica=~\"$server.*\"}",
           "format": "time_series",
-          "instant": true,
-          "intervalFactor": 2,
-          "legendFormat": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{replica}}",
           "refId": "A"
         }
       ],
-      "thresholds": "",
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
       "title": "Queries total",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
         {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
         }
       ],
-      "valueName": "current"
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "prometheus",
-      "format": "short",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
       "gridPos": {
         "h": 7,
         "w": 4,
         "x": 16,
         "y": 23
       },
-      "id": 15,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": true,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": true
+      "id": 36,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
       },
-      "tableColumn": "",
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_server_docs_total{instance=~\"$instance.*\", replica=~\"$server.*\", operation=~\"read\"}",
+          "expr": "dtr_server_docs_total{replica=~\"$server.*\", operation=~\"read\"}",
           "format": "time_series",
-          "instant": true,
-          "intervalFactor": 2,
-          "legendFormat": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{replica}}",
           "refId": "A"
         }
       ],
-      "thresholds": "",
-      "title": "Read docs total",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Read Docs total",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
         {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
         }
       ],
-      "valueName": "current"
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "prometheus",
-      "format": "short",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
       "gridPos": {
         "h": 7,
         "w": 4,
         "x": 20,
         "y": 23
       },
-      "id": 16,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": true,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": true
+      "id": 37,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
       },
-      "tableColumn": "",
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_server_docs_total{instance=~\"$instance.*\", replica=~\"$server.*\", operation=~\"written\"}",
+          "expr": "dtr_server_docs_total{replica=~\"$server.*\", operation=~\"written\"}",
           "format": "time_series",
-          "instant": true,
-          "intervalFactor": 2,
-          "legendFormat": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{replica}}",
           "refId": "A"
         }
       ],
-      "thresholds": "",
-      "title": "Written docs total",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Written Docs total",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
         {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
         }
       ],
-      "valueName": "current"
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "collapsed": false,
@@ -1296,7 +1302,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_tablereplica_data_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
+          "expr": "dtr_tablereplica_data_bytes{replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -1383,7 +1389,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_tablereplica_cache_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
+          "expr": "dtr_tablereplica_cache_bytes{replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -1470,7 +1476,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_tablereplica_metadata_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
+          "expr": "dtr_tablereplica_metadata_bytes{replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -1557,7 +1563,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_tablereplica_preallocated_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
+          "expr": "dtr_tablereplica_preallocated_bytes{replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -1643,7 +1649,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_tablereplica_garbage_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
+          "expr": "dtr_tablereplica_garbage_bytes{replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -1730,7 +1736,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_tablereplica_io{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"read\"}",
+          "expr": "dtr_tablereplica_io{replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"read\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -1817,7 +1823,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_tablereplica_io{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"written\"}",
+          "expr": "dtr_tablereplica_io{replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"written\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -1904,7 +1910,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_tablereplica_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"read\"}",
+          "expr": "dtr_tablereplica_docs_per_second{replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"read\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -1991,7 +1997,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_tablereplica_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"written\"}",
+          "expr": "dtr_tablereplica_docs_per_second{replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"written\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2078,7 +2084,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_table_docs_per_second{instance=~\"$instance.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"read\"}",
+          "expr": "dtr_table_docs_per_second{db=~\"$database.*\", table=~\"$table.*\", operation=\"read\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2165,7 +2171,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_table_docs_per_second{instance=~\"$instance.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"written\"}",
+          "expr": "dtr_table_docs_per_second{db=~\"$database.*\", table=~\"$table.*\", operation=\"written\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2231,7 +2237,7 @@
         },
         "datasource": "prometheus",
         "definition": "label_values(dtr_up, instance)",
-        "hide": 0,
+        "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
@@ -2252,8 +2258,8 @@
         "allValue": ".*",
         "current": {
           "tags": [],
-          "text": "37326782af8e",
-          "value": "37326782af8e"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "prometheus",
         "definition": "label_values(dtr_server_client_connections{instance=~\"$instance.*\"}, replica)",
@@ -2360,5 +2366,5 @@
   },
   "timezone": "",
   "title": "DTR RethinkDB Stats",
-  "version": 2
+  "version": 3
 }
