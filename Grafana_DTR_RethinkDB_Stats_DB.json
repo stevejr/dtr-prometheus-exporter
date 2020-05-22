@@ -16,8 +16,8 @@
   "editable": true,
   "gnetId": 5043,
   "graphTooltip": 0,
-  "id": 3,
-  "iteration": 1590080475888,
+  "id": 12,
+  "iteration": 1590147474954,
   "links": [],
   "panels": [
     {
@@ -95,7 +95,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "dtr_cluster_client_connections{instance=~\"$instance.*\",job=\"dtr-exporter\"}",
+          "expr": "dtr_cluster_client_connections",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -178,7 +178,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "dtr_cluster_clients_active{instance=~\"$instance.*\",job=\"dtr-exporter\"}",
+          "expr": "dtr_cluster_clients_active",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -262,7 +262,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "dtr_server_client_connections{instance=~\"$instance.*\",replica=~\"$server.*\",job=\"dtr-exporter\"}",
+          "expr": "dtr_server_client_connections{replica=~\"$server.*\"}",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -345,7 +345,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "dtr_server_clients_active{instance=~\"$instance.*\",replica=~\"$server.*\",job=\"dtr-exporter\"}",
+          "expr": "dtr_server_clients_active{replica=~\"$server.*\"}",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -418,10 +418,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_cluster_queries_per_second{instance=~\"$instance.*\",job=\"dtr-exporter\"}",
+          "expr": "dtr_cluster_queries_per_second",
           "format": "time_series",
+          "instant": false,
           "intervalFactor": 2,
-          "legendFormat": "",
+          "legendFormat": "Queries/Sec",
           "refId": "A"
         }
       ],
@@ -503,10 +504,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_cluster_docs_per_second{instance=~\"$instance.*\",operation=~\"read\",job=\"dtr-exporter\"}",
+          "expr": "dtr_cluster_docs_per_second{operation=~\"read\"}",
           "format": "time_series",
+          "instant": false,
           "intervalFactor": 2,
-          "legendFormat": "",
+          "legendFormat": "Read/Sec",
           "refId": "A"
         }
       ],
@@ -588,10 +590,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_cluster_docs_per_second{instance=~\"$instance.*\",operation=~\"written\",job=\"dtr-exporter\"}",
+          "expr": "dtr_cluster_docs_per_second{operation=~\"written\"}",
           "format": "time_series",
+          "instant": false,
           "intervalFactor": 2,
-          "legendFormat": "",
+          "legendFormat": "Written/Sec",
           "refId": "A"
         }
       ],
@@ -697,8 +700,9 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "dtr_server_count{instance=~\"$instance.*\",job=\"dtr-exporter\"}",
+          "expr": "dtr_server_count",
           "format": "time_series",
+          "instant": true,
           "intervalFactor": 2,
           "legendFormat": "",
           "refId": "A"
@@ -724,7 +728,7 @@
       "colorPrefix": false,
       "colorValue": false,
       "colors": [
-        "#d44a3a",
+        "#58140c",
         "rgba(237, 129, 40, 0.89)",
         "#299c46"
       ],
@@ -779,9 +783,9 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "100 * (count by (instance) (dtr_server_health_count{job=\"dtr-exporter\",health=\"healthy\"}) / sum by (instance) (dtr_server_health_count{job=\"dtr-exporter\"}))",
+          "expr": "100 * (count (dtr_server_health_count{health=\"healthy\"}) / sum (dtr_server_health_count))",
           "format": "time_series",
-          "instant": false,
+          "instant": true,
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "A"
@@ -861,8 +865,9 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "dtr_table_count{instance=~\"$instance.*\",job=\"dtr-exporter\"}",
+          "expr": "dtr_table_count",
           "format": "time_series",
+          "instant": true,
           "intervalFactor": 2,
           "legendFormat": "",
           "refId": "A"
@@ -932,24 +937,24 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_server_queries_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", job=\"dtr-exporter\"}",
+          "expr": "dtr_server_queries_per_second{instance=~\"$instance.*\", replica=~\"$server.*\"}",
           "format": "time_series",
           "intervalFactor": 2,
-          "legendFormat": "Queries/sec",
+          "legendFormat": "{{replica}} Queries/sec",
           "refId": "A"
         },
         {
-          "expr": "dtr_server_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", job=\"dtr-exporter\", operation=\"read\"}",
+          "expr": "dtr_server_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", operation=\"read\"}",
           "format": "time_series",
           "intervalFactor": 2,
-          "legendFormat": "Read/sec",
+          "legendFormat": "{{replica}} Read/sec",
           "refId": "B"
         },
         {
-          "expr": "dtr_server_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", job=\"dtr-exporter\", operation=\"written\"}",
+          "expr": "dtr_server_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", operation=\"written\"}",
           "format": "time_series",
           "intervalFactor": 2,
-          "legendFormat": "Write/sec",
+          "legendFormat": "{{replica}} Write/sec",
           "refId": "C"
         }
       ],
@@ -1055,9 +1060,9 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "dtr_server_queries_total{instance=~\"$instance.*\", replica=~\"$server.*\",job=\"dtr-exporter\"}",
+          "expr": "dtr_server_queries_total{instance=~\"$instance.*\", replica=~\"$server.*\"}",
           "format": "time_series",
-          "instant": false,
+          "instant": true,
           "intervalFactor": 2,
           "legendFormat": "",
           "refId": "A"
@@ -1137,9 +1142,9 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "dtr_server_docs_total{instance=~\"$instance.*\", replica=~\"$server.*\", operation=~\"read\", job=\"dtr-exporter\"}",
+          "expr": "dtr_server_docs_total{instance=~\"$instance.*\", replica=~\"$server.*\", operation=~\"read\"}",
           "format": "time_series",
-          "instant": false,
+          "instant": true,
           "intervalFactor": 2,
           "legendFormat": "",
           "refId": "A"
@@ -1219,9 +1224,9 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "dtr_server_docs_total{instance=~\"$instance.*\", replica=~\"$server.*\", operation=~\"written\", job=\"dtr-exporter\"}",
+          "expr": "dtr_server_docs_total{instance=~\"$instance.*\", replica=~\"$server.*\", operation=~\"written\"}",
           "format": "time_series",
-          "instant": false,
+          "instant": true,
           "intervalFactor": 2,
           "legendFormat": "",
           "refId": "A"
@@ -1291,12 +1296,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_table_disk_used_data_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", job=\"dtr-exporter\"}",
+          "expr": "dtr_tablereplica_data_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{db}}.{{table}}",
+          "legendFormat": "{{replica}}.{{db}}.{{table}}",
           "refId": "A"
         }
       ],
@@ -1378,12 +1383,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_tablereplica_cache_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", job=\"dtr-exporter\"}",
+          "expr": "dtr_tablereplica_cache_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{db}}.{{table}}",
+          "legendFormat": "{{replica}}.{{db}}.{{table}}",
           "refId": "A"
         }
       ],
@@ -1465,12 +1470,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_table_disk_used_metadata_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", job=\"dtr-exporter\"}",
+          "expr": "dtr_tablereplica_metadata_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{db}}.{{table}}",
+          "legendFormat": "{{replica}}.{{db}}.{{table}}",
           "refId": "A"
         }
       ],
@@ -1552,13 +1557,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_table_disk_preallocated_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", job=\"dtr-exporter\"}",
+          "expr": "dtr_tablereplica_preallocated_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
           "format": "time_series",
           "instant": false,
-          "interval": "",
-          "intervalFactor": 2,
-          "legendFormat": "{{db}}.{{table}}",
-          "refId": "A"
+          "intervalFactor": 1,
+          "legendFormat": "{{replica}}.{{db}}.{{table}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -1639,12 +1643,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_table_disk_used_metadata_bytes{instance=~\"$instance.*\", rreplica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", job=\"dtr-exporter\"}",
+          "expr": "dtr_tablereplica_garbage_bytes{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{db}}.{{table}}",
+          "legendFormat": "{{replica}}.{{db}}.{{table}}",
           "refId": "A"
         }
       ],
@@ -1726,12 +1730,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_table_disk_read_bytes_seconds{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", job=\"dtr-exporter\"}",
+          "expr": "dtr_tablereplica_io{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"read\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{db}}.{{table}}",
+          "legendFormat": "{{replica}}.{{db}}.{{table}}",
           "refId": "A"
         }
       ],
@@ -1739,7 +1743,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Read Bytes/sec",
+      "title": "Disk Read Bytes/sec",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1813,12 +1817,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_table_disk_written_bytes_second{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", job=\"dtr-exporter\"}",
+          "expr": "dtr_tablereplica_io{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"written\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{db}}.{{table}}",
+          "legendFormat": "{{replica}}.{{db}}.{{table}}",
           "refId": "A"
         }
       ],
@@ -1826,7 +1830,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Written Bytes/sec",
+      "title": "Disk Written Bytes/sec",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1900,12 +1904,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_table_docs_per_second{instance=~\"$instance.*\", db=~\"$database.*\", table=~\"$table.*\", job=\"dtr-exporter\", operation=\"read\"}",
+          "expr": "dtr_tablereplica_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"read\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{db}}.{{table}}",
+          "legendFormat": "{{replica}}.{{db}}.{{table}}",
           "refId": "A"
         }
       ],
@@ -1987,12 +1991,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_table_docs_per_second{instance=~\"$instance.*\", db=~\"$database.*\", table=~\"$table.*\", job=\"dtr-exporter\", operation=\"written\"}",
+          "expr": "dtr_tablereplica_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"written\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{db}}.{{table}}",
+          "legendFormat": "{{replica}}.{{db}}.{{table}}",
           "refId": "A"
         }
       ],
@@ -2074,12 +2078,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_server_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", job=\"dtr-exporter\", operation=\"read\"}",
+          "expr": "dtr_table_docs_per_second{instance=~\"$instance.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"read\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{server}}.{{db}}.{{table}}",
+          "legendFormat": "{{db}}.{{table}}",
           "refId": "A"
         }
       ],
@@ -2161,12 +2165,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dtr_server_docs_per_second{instance=~\"$instance.*\", replica=~\"$server.*\", db=~\"$database.*\", table=~\"$table.*\", job=\"dtr-exporter\", operation=\"written\"}",
+          "expr": "dtr_table_docs_per_second{instance=~\"$instance.*\", db=~\"$database.*\", table=~\"$table.*\", operation=\"written\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{server}}.{{db}}.{{table}}",
+          "legendFormat": "{{db}}.{{table}}",
           "refId": "A"
         }
       ],
@@ -2221,19 +2225,19 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "tags": [],
           "text": "All",
           "value": "$__all"
         },
         "datasource": "prometheus",
-        "definition": "label_values(dtr_up{job=\"dtr-exporter\"}, instance)",
+        "definition": "label_values(dtr_up, instance)",
         "hide": 0,
         "includeAll": true,
         "label": null,
         "multi": false,
         "name": "instance",
         "options": [],
-        "query": "label_values(dtr_up{job=\"dtr-exporter\"}, instance)",
+        "query": "label_values(dtr_up, instance)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -2247,9 +2251,9 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": true,
-          "text": "All",
-          "value": "$__all"
+          "tags": [],
+          "text": "37326782af8e",
+          "value": "37326782af8e"
         },
         "datasource": "prometheus",
         "definition": "label_values(dtr_server_client_connections{instance=~\"$instance.*\"}, replica)",
@@ -2273,19 +2277,21 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": true,
+          "tags": [],
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "prometheus",
-        "definition": "label_values(dtr_tablereplica_metadata_bytes{instance=~\"$instance\", replica=~\"$server.*\"}, db)",
+        "definition": "label_values(dtr_tablereplica_metadata_bytes{instance=~\"$instance.*\", replica=~\"$server.*\"}, db)",
         "hide": 0,
         "includeAll": true,
         "label": "Database",
         "multi": true,
         "name": "database",
         "options": [],
-        "query": "label_values(dtr_tablereplica_metadata_bytes{instance=~\"$instance\", replica=~\"$server.*\"}, db)",
+        "query": "label_values(dtr_tablereplica_metadata_bytes{instance=~\"$instance.*\", replica=~\"$server.*\"}, db)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -2299,7 +2305,6 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -2325,7 +2330,7 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {
@@ -2355,6 +2360,5 @@
   },
   "timezone": "",
   "title": "DTR RethinkDB Stats",
-  "uid": "AyAcCuRMk",
-  "version": 1
+  "version": 2
 }

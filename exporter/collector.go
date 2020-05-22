@@ -60,7 +60,7 @@ func processStats(e *DTRRethinkDBExporter, ch chan<- prometheus.Metric, dtrStats
 		case "server":
 			e.processServerStat(stat.QueryEngine, ch, replica)
 		case "table":
-			e.processTableStat(stat.QueryEngine, ch, stat.Db, stat.Table, replica)
+			e.processTableStat(stat.QueryEngine, ch, stat.Db, stat.Table)
 		case "table_server":
 			e.processTableServerStat(stat.QueryEngine, stat.StorageEngine, ch, stat.Db, stat.Table, replica)
 		default:
@@ -150,13 +150,13 @@ func (e *DTRRethinkDBExporter) processServerStat(stat api.QueryEngine, ch chan<-
 	ch <- prometheus.MustNewConstMetric(e.metrics.serverQueriesTotal, prometheus.GaugeValue, float64(stat.QueriesTotal), replica)
 }
 
-func (e *DTRRethinkDBExporter) processTableStat(stat api.QueryEngine, ch chan<- prometheus.Metric, db string, table string, replica string) {
+func (e *DTRRethinkDBExporter) processTableStat(stat api.QueryEngine, ch chan<- prometheus.Metric, db string, table string) {
 	if e.client.Debug {
 		e.log.Debugf("func: %s :- stat received: '%v'", "processTableStat", stat)
 	}
 
-	ch <- prometheus.MustNewConstMetric(e.metrics.tableDocsPerSecond, prometheus.GaugeValue, stat.ReadDocsPerSec, db, table, replica, readOperation)
-	ch <- prometheus.MustNewConstMetric(e.metrics.tableDocsPerSecond, prometheus.GaugeValue, stat.WrittenDocsPerSec, db, table, replica, writtenOperation)
+	ch <- prometheus.MustNewConstMetric(e.metrics.tableDocsPerSecond, prometheus.GaugeValue, stat.ReadDocsPerSec, db, table, readOperation)
+	ch <- prometheus.MustNewConstMetric(e.metrics.tableDocsPerSecond, prometheus.GaugeValue, stat.WrittenDocsPerSec, db, table, writtenOperation)
 }
 
 func (e *DTRRethinkDBExporter) processTableServerStat(statQE api.QueryEngine, statSE api.StorageEngine, ch chan<- prometheus.Metric, db string, table string, replica string) {
@@ -175,4 +175,5 @@ func (e *DTRRethinkDBExporter) processTableServerStat(statQE api.QueryEngine, st
 	ch <- prometheus.MustNewConstMetric(e.metrics.tableReplicaDataBytes, prometheus.GaugeValue, float64(statSE.Disk.SpaceUsage.DataBytes), db, table, replica)
 	ch <- prometheus.MustNewConstMetric(e.metrics.tableReplicaGarbageBytes, prometheus.GaugeValue, float64(statSE.Disk.SpaceUsage.GarbageBytes), db, table, replica)
 	ch <- prometheus.MustNewConstMetric(e.metrics.tableReplicaMetaDataBytes, prometheus.GaugeValue, float64(statSE.Disk.SpaceUsage.MetadataBytes), db, table, replica)
+	ch <- prometheus.MustNewConstMetric(e.metrics.tableReplicaPreAllocatedBytes, prometheus.GaugeValue, float64(statSE.Disk.SpaceUsage.PreallocatedBytes), db, table, replica)
 }
